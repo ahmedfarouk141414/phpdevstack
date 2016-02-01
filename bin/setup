@@ -1,0 +1,30 @@
+#!/bin/bash
+set -e
+cd $(pwd $0)
+
+# Generate private key
+if [ ! -f ~/.ssh/id_rsa.pub ]; then
+  ssh-keygen -t rsa
+fi
+
+# Setup public key
+mkdir -p ./www/.ssh
+cat ~/.ssh/id_rsa.pub > ./www/.ssh/authorized_keys
+
+if [ "$DOCKER_MACHINE_NAME" ]; then
+  # Expecting virtualbox
+  cat <<EOF > .env_user
+USER_ID=1000
+USER_CREATE=docker
+EOF
+else
+  # Expecting native linux
+  USER_ID=$(id -u)
+  cat <<EOF > .env_user
+USER_ID=$USER_ID
+USER_CREATE=$USER
+EOF
+fi
+
+# Fire up phpdevstack
+docker-compose up -d

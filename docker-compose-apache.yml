@@ -1,0 +1,30 @@
+mysql_data:
+  image: busybox
+  container_name: mysql_data
+  volumes:
+    - "/var/lib/mysql"
+
+mysql:
+  image: mysql:5.6
+  container_name: mysql
+  hostname: mysql
+  volumes_from:
+    - mysql_data
+  ports:
+    - "3306:3306"
+  environment:
+    - "MYSQL_ROOT_PASSWORD=pass"
+
+php70:
+  image: yoshz/apache-php-dev:7.0
+  container_name: php70
+  hostname: php70
+  ports:
+    - "2022:22"
+    - "80:80"
+  links:
+    - "mysql:db"
+  env_file: ".env_user"
+  volumes:
+    - "./configs/apache2:/etc/apache2/sites-enabled"
+    - "./www:/var/www"

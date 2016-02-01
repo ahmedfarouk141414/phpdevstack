@@ -1,0 +1,3 @@
+#!/bin/bash
+clear
+ssh docker@local.dev -p 2022
