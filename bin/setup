@@ -2,8 +2,10 @@
 set -e
 cd $(pwd $0)
 
-# Configure docker machine
-docker-machine-nfs default --nfs-config="-alldirs -maproot=0"
+# Configure nfs for docker machine
+if [ "$DOCKER_MACHINE_NAME" ]; then
+  docker-machine-nfs $DOCKER_MACHINE_NAME --nfs-config="-alldirs -maproot=0"
+fi
 
 # Generate private key
 if [ ! -f ~/.ssh/id_rsa.pub ]; then
