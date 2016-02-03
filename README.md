@@ -3,21 +3,24 @@ PHP-DEV-STACK
 
 A PHP development stack using Docker containers.
 
-There are 2 setups available by default, 
-but you can also create your own Docker compose file with other setups if you want.
+There are 2 setups available by default, but you can also create your own Docker compose file with other setups if you want.
+The PHP containers contain all the development tools you need. See https://github.com/yoshz/docker-php for more information.
 
 ### configs/compose/nginx.yml
-* [yoshz/php-fpm-dev](https://hub.docker.com/r/yoshz/php-fpm-dev/) with PHP-FPM 7.0
-* [mysql](https://hub.docker.com/_/mysql/) 5.6
+* [yoshz/php-fpm-dev](https://hub.docker.com/r/yoshz/php-fpm-dev/)
+* [memcached](https://hub.docker.com/_/memcached/)
+* [mysql](https://hub.docker.com/_/mysql/)
 * [nginx](https://hub.docker.com/_/nginx/)
 
 ### configs/compose/apache.yml
-* [yoshz/apache-php-dev](https://hub.docker.com/r/yoshz/php-fpm-dev/) with PHP 7.0 and Apache 2.4
-* [mysql](https://hub.docker.com/_/mysql/) 5.6
+* [yoshz/apache-php-dev](https://hub.docker.com/r/yoshz/apache-php-dev/)
+* [memcached](https://hub.docker.com/_/memcached/)
+* [mysql](https://hub.docker.com/_/mysql/)
 
 ### configs/compose/mysql_data.yml
-Separate container specially used for mysql data storage named `mysql_data`.
-You probably don't have to use this compose file. This container is launched during initial setup.
+This compose file starts the data container `mysql_data` specifically used for the mysql container to persist data.
+The data container makes it possible to upgrade or remove the mysql container without losing your databases.
+Most likely you never have to use this compose file as it use automatically ran during initial setup.
 
 
 Installation
@@ -76,3 +79,8 @@ Inside the website directory the `web` is used as document root by default.
 ### Put your nginx or apache specific configuration inside the `./configs/*` directory
 Reload your stack after you modified the configuration: `docker-compose -f configs/docker/<webserver>.yml restart`
 
+### Use `db` as mysql hostname in your application configuration
+The mysql container is linked to the php container with the hostname `db`.
+
+### Use `memcached` as memcached hostname in your application configuration
+The memcached container is linked to the php container with the hostname `memcached`.

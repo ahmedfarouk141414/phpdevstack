@@ -9,6 +9,12 @@ mysql:
   environment:
     - "MYSQL_ROOT_PASSWORD=pass"
 
+memcached:
+  image: memcached
+  container_name: memcached
+  hostname: memcached
+  mem_limit: 64M
+
 php70:
   image: yoshz/php-fpm-dev:7.0
   container_name: php70
@@ -17,6 +23,7 @@ php70:
     - "2022:22"
   links:
     - "mysql:db"
+    - "memcached:memcached"
   env_file: "../env_user"
   volumes:
     - "../../www:/var/www"

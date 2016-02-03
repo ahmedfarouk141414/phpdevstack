@@ -9,6 +9,12 @@ mysql:
   environment:
     - "MYSQL_ROOT_PASSWORD=pass"
 
+memcached:
+  image: memcached
+  container_name: memcached
+  hostname: memcached
+  mem_limit: 64M
+
 php70:
   image: yoshz/apache-php-dev:7.0
   container_name: php70
@@ -18,6 +24,7 @@ php70:
     - "80:80"
   links:
     - "mysql:db"
+    - "memcached:memcached"
   env_file: "../env_user"
   volumes:
     - "./../apache2:/etc/apache2/sites-enabled"
