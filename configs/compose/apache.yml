@@ -29,3 +29,6 @@ php70:
   volumes:
     - "./../apache2:/etc/apache2/sites-enabled"
     - "./../../www:/var/www"
+  dns:
+    - "8.8.8.8"
+    - "8.8.4.4"
