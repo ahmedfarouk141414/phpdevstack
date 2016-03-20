@@ -23,26 +23,43 @@ The data container makes it possible to upgrade or remove the mysql container wi
 Most likely you never have to use this compose file as it use automatically ran during initial setup.
 
 
-Installation
-============
+Prerequisites
+=============
 
 OS X
 ----
 
 * Install [Docker Engine](https://docs.docker.com/engine/installation/mac/).
 
-* Install [Docker Compose](https://docs.docker.com/compose/install/).
-
 * Install [Docker Machine NFS](https://github.com/adlogix/docker-machine-nfs) to speed up filesystem sharing.
 
-* Install [Dnsmasq](https://passingcuriosity.com/2013/dnsmasq-dev-osx/).
-  Use the IP address from `docker-machine ip default`.
+```bash
+    curl -s https://raw.githubusercontent.com/adlogix/docker-machine-nfs/master/docker-machine-nfs.sh |
+      sudo tee /usr/local/bin/docker-machine-nfs > /dev/null && \
+      sudo chmod +x /usr/local/bin/docker-machine-nfs
+```
 
-* Start `Docker Quickstart Terminal`
+* Start `Docker Quickstart Terminal`. This will automatically configure docker machine using Virtualbox.
 
-* Setup initial configuration by running: `./bin/setup`<br>
-  This will create a mysqldata container, setup an enviroment file and configure nfs for docker machine.
+* Install and configure dnsmasq:
 
+```bash
+    # Copy the default configuration file.
+    cp $(brew list dnsmasq | grep /dnsmasq.conf.example$) /usr/local/etc/dnsmasq.conf
+    # Add alias for .dev domains using the ip address of your default docker machine
+    echo "address=/dev/$(docker-machine ip default)" >> /usr/local/etc/dnsmasq.conf
+    # Copy the daemon configuration file into place.
+    sudo cp $(brew list dnsmasq | grep /homebrew.mxcl.dnsmasq.plist$) /Library/LaunchDaemons/
+    # Start Dnsmasq automatically.
+    sudo launchctl load /Library/LaunchDaemons/homebrew.mxcl.dnsmasq.plist
+```
+
+* Configure resolver to use dnsmasq all .dev domains:
+
+```bash
+   sudo mkdir -p /etc/resolver
+   sudo bash -c 'echo "nameserver 127.0.0.1" > /etc/resolver/dev'
+```
 
 Linux (Debian/Ubuntu)
 ---------------------
@@ -53,7 +70,7 @@ Linux (Debian/Ubuntu)
 
 * Enable dnsmasq in `/etc/NetworkManager/NetworkManager.conf`.
 
-* Create `/etc/NetworkManager/dnsmasq.d/localdev` with the line: `address=/dev/127.0.0.5`
+* Create `/etc/NetworkManager/dnsmasq.d/dev` with the line: `address=/dev/127.0.0.1`
 
 * Restart networking by executing: `sudo /etc/init.d/networking restart`
 
@@ -61,12 +78,36 @@ Linux (Debian/Ubuntu)
   This will create a mysqldata container and setup an enviroment file.
 
 
+Windows
+-------
+
+TODO
+
+
+
+Installation
+============
+
+
+* Clone this repository.
+
+```bash
+    git clone git@github.com:yoshz/phpdevstack.git
+```
+
+* Setup your environment configuration.
+
+```bash
+    bin/setup
+```
+
+
 Usage
 =====
 
 ### Start the development stack by executing:
-With nginx: `docker-compose -f configs/docker/nginx.yml up -d`<br>
-With apache2: `docker-compose -f configs/docker/apache.yml up -d`<br>
+With nginx and php-fpm: `docker-compose -f configs/docker/nginx.yml up -d`<br>
+With apache2 and mod_php: `docker-compose -f configs/docker/apache.yml up -d`<br>
 
 ### Enter the phpstack by executing: `./bin/enter`
 You are now connected to the php container using SSH as the same user on your host OS.

@@ -1,3 +1,9 @@
+mysql_data:
+  image: busybox
+  container_name: mysql_data
+  volumes:
+    - "/var/lib/mysql"
+
 mysql:
   image: mysql:5.6
   container_name: mysql
@@ -15,18 +21,18 @@ memcached:
   hostname: memcached
   mem_limit: 64M
 
-php70:
+php:
   image: yoshz/php-fpm-dev:7.0
-  container_name: php70
-  hostname: php70
+  container_name: php
+  hostname: php
   ports:
     - "2022:22"
   links:
-    - "mysql:db"
+    - "mysql:mysql"
     - "memcached:memcached"
-  env_file: "../env_user"
+  env_file: "./configs/env_user"
   volumes:
-    - "../../www:/var/www"
+    - "./www:/var/www"
   dns:
     - "8.8.8.8"
     - "8.8.4.4"
@@ -36,9 +42,9 @@ nginx:
   container_name: nginx
   hostname: nginx
   links:
-    - "php70:web"
+    - "php:php"
   ports:
     - "80:80"
   volumes:
-    - "./../../www:/var/www"
-    - "./../nginx:/etc/nginx/conf.d"
+    - "./www:/var/www"
+    - "./configs/nginx:/etc/nginx/conf.d"

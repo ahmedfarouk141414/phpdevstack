@@ -1,6 +1,0 @@
-mysql_data:
-  image: busybox
-  container_name: mysql_data
-  volumes:
-    - "/var/lib/mysql"
-

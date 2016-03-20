@@ -2,8 +2,6 @@ mysql:
   image: mysql:5.6
   container_name: mysql
   hostname: mysql
-  volumes_from:
-    - mysql_data
   ports:
     - "3306:3306"
   environment:
@@ -15,20 +13,21 @@ memcached:
   hostname: memcached
   mem_limit: 64M
 
-php70:
+php:
   image: yoshz/apache-php-dev:7.0
-  container_name: php70
-  hostname: php70
+  container_name: php
+  hostname: php
   ports:
     - "2022:22"
     - "80:80"
+    - "35729:35729"
   links:
-    - "mysql:db"
+    - "mysql:mysql"
     - "memcached:memcached"
-  env_file: "../env_user"
+  env_file: "./configs/env_user"
   volumes:
-    - "./../apache2:/etc/apache2/sites-enabled"
-    - "./../../www:/var/www"
+    - "./configs/apache2:/etc/apache2/sites-enabled"
+    - "./www:/var/www"
   dns:
     - "8.8.8.8"
     - "8.8.4.4"
