@@ -4,7 +4,7 @@ cd $(pwd $0)
 
 # Configure nfs for docker machine
 if [ "$DOCKER_MACHINE_NAME" ]; then
-  docker-machine-nfs $DOCKER_MACHINE_NAME --nfs-config="-alldirs -maproot=0" --mount-options="noacl,async,nolock,vers=3,udp,noatime,actimeo=1"
+  docker-machine-nfs $DOCKER_MACHINE_NAME --nfs-config="-alldirs -maproot=0" --mount-opts="noacl,async,nolock,vers=3,udp,noatime,actimeo=1"
 fi
 
 # Generate private key
