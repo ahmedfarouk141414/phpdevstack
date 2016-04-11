@@ -1,7 +1,15 @@
+mysql_data:
+  image: busybox
+  container_name: mysql_data
+  volumes:
+    - "/var/lib/mysql"
+
 mysql:
   image: mysql:5.6
   container_name: mysql
   hostname: mysql
+  volumes_from:
+    - mysql_data
   ports:
     - "3306:3306"
   environment:
