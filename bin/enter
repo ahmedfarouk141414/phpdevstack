@@ -1,3 +1,8 @@
 #!/bin/bash
 clear
-ssh local.dev -p 2022 -A
+if [ "$DOCKER_MACHINE_NAME" ]; then
+  DOCKER_HOST=`docker-machine ip $DOCKER_MACHINE_NAME`
+else
+  DOCKER_HOST=localhost
+fi
+ssh $DOCKER_HOST -p 2022 -A
