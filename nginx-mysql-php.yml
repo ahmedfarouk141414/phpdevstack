@@ -1,50 +1,40 @@
-mysql_data:
-  image: busybox
-  container_name: mysql_data
-  volumes:
-    - "/var/lib/mysql"
+version: '2'
 
-mysql:
-  image: mysql:5.6
-  container_name: mysql
-  hostname: mysql
-  volumes_from:
-    - mysql_data
-  ports:
-    - "3306:3306"
-  environment:
-    - "MYSQL_ROOT_PASSWORD=pass"
+volumes:
+  mysql_data:
+    driver: local
 
-memcached:
-  image: memcached
-  container_name: memcached
-  hostname: memcached
-  mem_limit: 64M
+services:
+  mysql:
+    image: mysql:5.6
+    volumes:
+      - "mysql_data:/var/lib/mysql"
+    ports:
+      - "3306:3306"
+    environment:
+      - "MYSQL_ROOT_PASSWORD=pass"
 
-php:
-  image: yoshz/php-fpm-dev:7.0
-  container_name: php
-  hostname: php
-  ports:
-    - "2022:22"
-  links:
-    - "mysql:mysql"
-    - "memcached:memcached"
-  env_file: "./configs/env_user"
-  volumes:
-    - "./www:/var/www"
-  dns:
-    - "8.8.8.8"
-    - "8.8.4.4"
-  
-nginx:
-  image: nginx
-  container_name: nginx
-  hostname: nginx
-  links:
-    - "php:php"
-  ports:
-    - "80:80"
-  volumes:
-    - "./www:/var/www"
-    - "./configs/nginx:/etc/nginx/conf.d"
+  memcached:
+    image: memcached
+    mem_limit: 64M
+
+  php:
+    image: yoshz/php-fpm-dev:7.0
+    hostname: php
+    ports:
+      - "2022:22"
+      - "35729:35729"
+    env_file: "./configs/env_user"
+    volumes:
+      - "./www:/var/www"
+    dns:
+      - "8.8.8.8"
+      - "8.8.4.4"
+    
+  nginx:
+    image: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - "./www:/var/www"
+      - "./configs/nginx:/etc/nginx/conf.d"

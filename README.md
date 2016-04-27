@@ -1,26 +1,19 @@
 PHP-DEV-STACK
 =============
 
-A PHP development stack using Docker containers.
+This development stack enables you to do in-container development for your PHP projects.
 
-There are 2 setups available by default, but you can also create your own Docker compose file with other setups if you want.
-The PHP containers contain all the development tools you need. See https://github.com/yoshz/docker-php for more information.
+To quickstart your development setup, two docker-compose files are provided:
 
-### configs/compose/nginx.yml
-* [yoshz/php-fpm-dev](https://hub.docker.com/r/yoshz/php-fpm-dev/)
-* [memcached](https://hub.docker.com/_/memcached/)
-* [mysql](https://hub.docker.com/_/mysql/)
-* [nginx](https://hub.docker.com/_/nginx/)
+* `apache-mysql-php.yml`: Apache 2.4 with PHP 7.0 by using mod_php
+* `nignx-mysql-php.yml`: Nginx 1.9 with PHP 7.0 by using PHP-FPM
 
-### configs/compose/apache.yml
-* [yoshz/apache-php-dev](https://hub.docker.com/r/yoshz/apache-php-dev/)
-* [memcached](https://hub.docker.com/_/memcached/)
-* [mysql](https://hub.docker.com/_/mysql/)
+You can copy and modify these files to setup your own stack to use for example a different database or caching
+engine.
 
-### configs/compose/mysql_data.yml
-This compose file starts the data container `mysql_data` specifically used for the mysql container to persist data.
-The data container makes it possible to upgrade or remove the mysql container without losing your databases.
-Most likely you never have to use this compose file as it use automatically ran during initial setup.
+The php containers are using the php-dev images of https://github.com/yoshz/docker-php.
+These php-dev images are optimized for in-container development by fixing permission issues by using the same
+ host user-id and ssh-key and adding a lot of tools like: `npm`, `bundler`, `bower`, `gulp`, `grunt`, `phpunit`.
 
 
 Prerequisites
@@ -29,7 +22,7 @@ Prerequisites
 OS X
 ----
 
-* Install [Docker Engine](https://docs.docker.com/engine/installation/mac/).
+* Install [Docker Engine](https://docs.docker.com/engine/installation/mac/) 1.10 or higher.
 
 * Install [Docker Machine NFS](https://github.com/adlogix/docker-machine-nfs) to speed up filesystem sharing.
 
@@ -39,7 +32,8 @@ OS X
       sudo chmod +x /usr/local/bin/docker-machine-nfs
 ```
 
-* Start `Docker Quickstart Terminal`. This will automatically configure docker machine using Virtualbox.
+* Start `Docker Quickstart Terminal` to automatically configure docker-machine with Virtualbox 
+  or setup your own docker-machine.
 
 * Install and configure dnsmasq:
 
@@ -54,28 +48,26 @@ OS X
     sudo launchctl load /Library/LaunchDaemons/homebrew.mxcl.dnsmasq.plist
 ```
 
-* Configure resolver to use dnsmasq all .dev domains:
+* Configure resolver to use the local dns server for all .dev domains:
 
 ```bash
    sudo mkdir -p /etc/resolver
    sudo bash -c 'echo "nameserver 127.0.0.1" > /etc/resolver/dev'
 ```
 
+
 Linux (Debian/Ubuntu)
 ---------------------
 
-* Install Docker Engine ([Debian](https://docs.docker.com/engine/installation/debian/) or [Ubuntu](https://docs.docker.com/engine/installation/ubuntulinux/)).
+* Install Docker Engine >= 1.10 ([Debian](https://docs.docker.com/engine/installation/debian/) or [Ubuntu](https://docs.docker.com/engine/installation/ubuntulinux/)).
 
-* Install [Docker Compose](https://docs.docker.com/compose/install/).
+* Install [Docker Compose](https://docs.docker.com/compose/install/) >= 1.7
 
-* Enable dnsmasq in `/etc/NetworkManager/NetworkManager.conf`.
+* Enable dnsmasq in `/etc/NetworkManager/NetworkManager.conf`
 
 * Create `/etc/NetworkManager/dnsmasq.d/dev` with the line: `address=/dev/127.0.0.1`
 
 * Restart networking by executing: `sudo /etc/init.d/networking restart`
-
-* Setup initial configuration by running: `./bin/setup`<br>
-  This will create a mysqldata container and setup an enviroment file.
 
 
 Windows
@@ -95,33 +87,32 @@ Installation
     git clone git@github.com:yoshz/phpdevstack.git
 ```
 
-* Setup your environment configuration.
-
-```bash
-    bin/setup
-```
+* Setup initial configuration by running: `./bin/setup`<br>
+  This will script will:
+  
+    * Setup NFS when you are using docker-machine
+    * Setup authorized_keys file for the development container
+    * Setup an environment file with the current username and id
 
 
 Usage
 =====
 
-### Start the development stack by executing:
-With nginx and php-fpm: `docker-compose -f configs/docker/nginx.yml up -d`<br>
-With apache2 and mod_php: `docker-compose -f configs/docker/apache.yml up -d`<br>
+### Start the development stack by running:
+With nginx and php-fpm: `docker-compose -f apache-mysql-php.yml up -d`<br>
+With apache2 and mod_php: `docker-compose -f nginx-mysql-php.yml up -d`<br>
 
-### Enter the phpstack by executing: `./bin/enter`
-You are now connected to the php container using SSH as the same user on your host OS.
-Your ssh agent is shared so you can use the same keys inside the container to connect to for example Github.
+### Enter the phpstack by running: `./bin/enter`
+After you ran the command you will be connected to the PHP container using SSH.
+The SSH authentication agent connection will be forwarded to the container.
 
 ### Put your websites inside the `./www/sites` directory
 The name of the website directory is the hostname you can access using `http://<directory>.dev`.
 Inside the website directory the `web` is used as document root by default.
 
 ### Put your nginx or apache specific configuration inside the `./configs/*` directory
-Reload your stack after you modified the configuration: `docker-compose -f configs/docker/<webserver>.yml restart`
+Reload your stack after you modified the configuration: `docker-compose -f <stack>.yml restart`
 
-### Use `db` as mysql hostname in your application configuration
-The mysql container is linked to the php container with the hostname `db`.
-
-### Use `memcached` as memcached hostname in your application configuration
-The memcached container is linked to the php container with the hostname `memcached`.
+### Use container names as hostname inside your application configuration
+You are able to use the name of each container (`mysql`, `memcached`) as hostname.
+Because of the inner working of Docker the containername will automatically be resolved to the containers IP.

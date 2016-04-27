@@ -4,21 +4,20 @@ cd $(pwd $0)
 
 # Configure nfs for docker machine
 if [ "$DOCKER_MACHINE_NAME" ]; then
-  docker-machine-nfs $DOCKER_MACHINE_NAME --nfs-config="-alldirs -maproot=0" --mount-opts="noacl,async,nolock,vers=3,udp,noatime,actimeo=1"
-fi
-
-# Generate private key
-if [ ! -f ~/.ssh/id_rsa.pub ]; then
-  ssh-keygen -t rsa
+    docker-machine-nfs $DOCKER_MACHINE_NAME --nfs-config="-alldirs -maproot=0" --mount-opts="noacl,async,nolock,vers=3,udp,noatime,actimeo=1"
 fi
 
 # Setup public key
-mkdir -p ./www/.ssh
-cat ~/.ssh/id_rsa.pub > ./www/.ssh/authorized_keys
+if [ -f ~/.ssh/id_rsa.pub ]; then
+    mkdir -p ./www/.ssh
+    cat ~/.ssh/id_rsa.pub > ./www/.ssh/authorized_keys
+else
+    echo -e "\033[0;31mFailed to determine your public SSH key\033[0m"
+    echo "Please add your public key to: ./www/.ssh/authorized_keys"
+fi
 
 # Setup environment file
-USER_ID=$(id -u)
 cat <<EOF > ./configs/env_user
-USER_ID=$USER_ID
+USER_ID=$(id -u)
 USER_CREATE=$USER
 EOF
